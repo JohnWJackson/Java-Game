@@ -1,7 +1,8 @@
 package com.mictl.game;
 
+import com.mictl.game.entity.mob.Player;
 import com.mictl.game.graphics.Screen;
-import com.mictl.game.input.Keyboard;
+import com.mictl.game.input.InputHandler;
 import com.mictl.game.level.Level;
 import com.mictl.game.level.RandomLevel;
 
@@ -20,8 +21,9 @@ public class Game extends Canvas implements Runnable {
 
     private Thread thread;
     private JFrame frame;
-    private Keyboard key;
+    private InputHandler input;
     private Level level;
+    private Player player;
     private boolean running = false;
 
     Screen screen;
@@ -36,10 +38,11 @@ public class Game extends Canvas implements Runnable {
 
         screen = new Screen(width, height);
         frame = new JFrame();
-        key = new Keyboard();
+        input = new InputHandler();
         level = new RandomLevel(screen.MAP_SIZE, screen.MAP_SIZE);
+        player = new Player(input);
 
-        frame.addKeyListener(key);
+        frame.addKeyListener(input);
     }
 
     public synchronized void start() {
@@ -87,19 +90,10 @@ public class Game extends Canvas implements Runnable {
         stop();
     }
 
-    int x=0, y=0;
     public void update() {
         frame.requestFocusInWindow();
-
-        key.update();
-        if (key.up)
-            y--;
-        if (key.down)
-            y++;
-        if (key.right)
-            x++;
-        if (key.left)
-            x--;
+        input.update();
+        player.update();
     }
 
     public void render() {
@@ -110,7 +104,7 @@ public class Game extends Canvas implements Runnable {
         }
 
         screen.clear();
-        level.render(x, y, screen);
+        level.render(player.x, player.y, screen);
 
 /*        pixels = Arrays.copyOf(screen.pixels, pixels.length);*/
         for (int i = 0; i < pixels.length; i++) {
